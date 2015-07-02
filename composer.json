@@ -4,7 +4,6 @@
     "keywords": ["yii2", "image", "resize", "image store", "cache"],
     "homepage": "https://github.com/drishu/yii2-imagecache",
     "type": "yii2-extension",
-    "version": "1.0.0",
     "authors": [
         {
             "name": "Szilagyi Andras",
