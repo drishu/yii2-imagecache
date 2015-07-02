@@ -12,9 +12,15 @@
         }
     ],
     "require": {
+        "yiisoft/yii2": "~2.0.0"
     },
     "autoload": {
         "psr-4": {"drishu\\yii2imagecache\\": ""}
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.0.x-dev"
+        },
     }
 }
 
