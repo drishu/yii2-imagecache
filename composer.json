@@ -5,10 +5,6 @@
     "homepage": "https://github.com/drishu/yii2-imagecache",
     "type": "yii2-extension",
     "version": "1.0.0",
-    "dist": {
-        "url": "https://github.com/drishu/yii2-imagecache/archive/master.zip",
-        "type": "zip"
-    },
     "authors": [
         {
             "name": "Szilagyi Andras",
