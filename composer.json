@@ -8,7 +8,7 @@
     "dist": {
         "url": "https://github.com/drishu/yii2-imagecache/archive/master.zip",
         "type": "zip"
-    }
+    },
     "authors": [
         {
             "name": "Szilagyi Andras",
