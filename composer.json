@@ -1,0 +1,18 @@
+{
+    "name": "drishu/yii2-imagecache",
+    "description": "the better imagecache",
+    "keywords": ["yii2", "image", "resize", "image store", "cache"],
+    "homepage": "https://github.com/drishu/yii2-imagecache",
+    "type": "yii2-extension",
+    "authors": [
+        {
+            "name": "Szilagyi Andras",
+            "email": "mr.drishu@gamil.com"
+        }
+    ],
+    "require": {
+    },
+    "autoload": {
+        "psr-4": {"drishu\\yii2imagecache\\": ""}
+    }
+}
