@@ -28,4 +28,4 @@ Usage
 Once the extension is installed, simply use it in your code by  :
 
 ```php
-<?= \drishu\yii2imagecache\AutoloadExample::widget(); ?>```
+<?= \drishu\yii2imagecache\ImageCache::widget(); ?>```
