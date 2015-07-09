@@ -1,8 +1,7 @@
 <?php
 
-namespace common\components;
+namespace drishu\yii2imagecache;
 
-use Yii;
 use yii\base\Component;
 use yii\helpers\BaseFileHelper;
 
@@ -11,34 +10,55 @@ use yii\helpers\BaseFileHelper;
  */
 class ImageCache extends Component
 {
-    public static function get($path, $preset, $expires = 31536000)
+    /**
+     * The folder the images are coming from
+     * @TODO: support external images
+     * @var type 
+     */
+    public $sourcePath;
+    
+    /**
+     * Path to cache folder
+     * @var type 
+     */
+    public $cachePath;
+    
+    /**
+     * Tries to create a cached resized image.
+     * @TODO: try imagemagick and fallback to GD if not found
+     * @param type $path
+     * @param type $preset
+     * @param type $expires
+     * @return string
+     */
+    public function get($path, $preset, $expires = 31536000)
     {
         if (strpos($path, 'http') !== false)
         {
             return $path;
         }
         
-        if (!is_file(Yii::getAlias('@base').$path))
+        if (!is_file($this->sourcePath.$path))
         {
             return null;
         }
         
-        $fileExtension =  pathinfo(Yii::getAlias('@base').$path, PATHINFO_EXTENSION);
-        $fileName =  pathinfo(Yii::getAlias('@base').$path, PATHINFO_FILENAME);
+        $fileExtension =  pathinfo($this->sourcePath.$path, PATHINFO_EXTENSION);
+        $fileName =  pathinfo($this->sourcePath.$path, PATHINFO_FILENAME);
         
-        list($width, $height) = getimagesize(Yii::getAlias('@base').$path);
+        list($width, $height) = getimagesize($this->sourcePath.$path);
         
-        $pathToSave = '/data/imagecache/'.$preset.'/'.$fileName.'.'.$fileExtension;
+        $pathToSave = $this->cachePath.'/imagecache/'.$preset.'/'.$fileName.'.'.$fileExtension;
         
-        BaseFileHelper::createDirectory(dirname(Yii::getAlias('@base').$pathToSave), 0777, true);
+        BaseFileHelper::createDirectory(dirname($this->sourcePath.$pathToSave), 0777, true);
         
-        if (is_file(Yii::getAlias('@base').$pathToSave) && $lastModified = filemtime(Yii::getAlias('@base').$pathToSave))
+        if (is_file($this->sourcePath.$pathToSave) && $lastModified = filemtime($this->sourcePath.$pathToSave))
         {
             $expiresIn = $lastModified + $expires;
             
             if (time() > $expiresIn)
             {
-                unlink(Yii::getAlias('@base').$pathToSave);
+                unlink($this->sourcePath.$pathToSave);
             }
         }        
         
@@ -51,13 +71,13 @@ class ImageCache extends Component
         {
             case 'jpeg':
             case 'jpg':
-                $image = imagecreatefromjpeg(Yii::getAlias('@base').$path);
+                $image = imagecreatefromjpeg($this->sourcePath.$path);
                 break;
             case 'gif':
-                $image = imagecreatefromgif(Yii::getAlias('@base').$path);
+                $image = imagecreatefromgif($this->sourcePath.$path);
                 break;
             case 'png':
-                $image = imagecreatefrompng(Yii::getAlias('@base').$path);
+                $image = imagecreatefrompng($this->sourcePath.$path);
                 break;
         }
         
@@ -83,23 +103,26 @@ class ImageCache extends Component
         {
             case 'jpeg':
             case 'jpg':
-                imagejpeg($tmp, Yii::getAlias('@base').$pathToSave, 100);
+                imagejpeg($tmp, $this->sourcePath.$pathToSave, 100);
                 break;
             case 'gif':
-                imagegif($tmp, Yii::getAlias('@base').$pathToSave, 100);
+                imagegif($tmp, $this->sourcePath.$pathToSave, 100);
                 break;
             case 'png':
                 imagealphablending($tmp, false);
                 imagesavealpha($tmp, true);
-                imagepng($tmp, Yii::getAlias('@base').$pathToSave, 9);
+                imagepng($tmp, $this->sourcePath.$pathToSave, 9);
                 break;
         }
         
         return $pathToSave;
     }
     
-    public static function clearAll()
+    /**
+     * Remove all cached images
+     */
+    public function clearAll()
     {
-        @BaseFileHelper::removeDirectory(Yii::getAlias('@base').'/data/imagecache/');
+        @BaseFileHelper::removeDirectory($this->sourcePath.$this->cachePath.'/imagecache/');
     }
 }
