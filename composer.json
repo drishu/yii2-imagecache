@@ -1,9 +1,9 @@
 {
     "name": "drishu/yii2-imagecache",
-    "description": "the better imagecache",
-    "keywords": ["yii2", "image", "resize", "image store", "cache"],
-    "homepage": "https://github.com/drishu/yii2-imagecache",
+    "description": "the better image cache",
     "type": "yii2-extension",
+    "keywords": ["yii2","extension"],
+    "license": "GNU-2.0",
     "authors": [
         {
             "name": "Szilagyi Andras",
@@ -11,15 +11,11 @@
         }
     ],
     "require": {
-        "yiisoft/yii2": "~2.0.0"
+        "yiisoft/yii2": "*"
     },
     "autoload": {
-        "psr-4": {"drishu\\yii2imagecache\\": ""}
-    },
-    "extra": {
-        "branch-alias": {
-            "dev-master": "1.0.x-dev"
-        },
+        "psr-4": {
+            "drishu\\yii2imagecache\\": ""
+        }
     }
 }
-
