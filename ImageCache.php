@@ -34,11 +34,49 @@ class ImageCache extends Component
     public function get($path, $preset, $expires = 31536000)
     {
         if (strpos($path, 'http') !== false)
+        {            
+            $sourceImagePath = $path;
+        }
+        else
+        {
+            $sourceImagePath = $this->sourcePath.$path;
+        }
+        
+        $fileExtension =  pathinfo($sourceImagePath, PATHINFO_EXTENSION);
+        $fileName =  pathinfo($sourceImagePath, PATHINFO_FILENAME);
+        
+        list($width, $height) = getimagesize($sourceImagePath);
+        
+        $pathToSave = $this->cachePath.'/imagecache/'.$preset.'/'.$fileName.'.'.$fileExtension;
+        
+        BaseFileHelper::createDirectory(dirname($this->sourcePath.$pathToSave), 0777, true);
+        
+        // expired ?
+        if (is_file($this->sourcePath.$pathToSave) && $lastModified = filemtime($this->sourcePath.$pathToSave))
+        {
+            $expiresIn = $lastModified + $expires;
+            
+            if (time() > $expiresIn)
+            {
+                unlink($this->sourcePath.$pathToSave);
+            }
+        }
+        
+        // not expired but cached
+        if (is_file($this->sourcePath.$pathToSave))
+        {
+            return $pathToSave;
+        }
+        
+        $preset = strtolower($preset);
+        $parts = explode('x', $preset);
+        $newWidth = intval($parts['0']);
+        $newHeight = isset($parts['1']) ? intval($parts['1']) : 0;
+        
+        if (strpos($path, 'http') !== false)
         {
             // read the external image
             $ch = curl_init();
-
-            // set URL and other appropriate options
             curl_setopt($ch, CURLOPT_URL, $path);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1); 
             curl_setopt($ch, CURLOPT_HEADER, 0);
@@ -50,54 +88,23 @@ class ImageCache extends Component
                 return $path;
             }
             
-            $sourceImagePath = $path;
+            $image = imagecreatefromstring($content);
         }
         else
         {
-            $sourceImagePath = $this->sourcePath.$path;
-        }
-        
-        if (!is_file($sourceImagePath))
-        {
-            return null;
-        }
-        
-        $fileExtension =  pathinfo($sourceImagePath, PATHINFO_EXTENSION);
-        $fileName =  pathinfo($sourceImagePath, PATHINFO_FILENAME);
-        
-        list($width, $height) = getimagesize($$sourceImagePath);
-        
-        $pathToSave = $this->cachePath.'/imagecache/'.$preset.'/'.$fileName.'.'.$fileExtension;
-        
-        BaseFileHelper::createDirectory(dirname($this->sourcePath.$pathToSave), 0777, true);
-        
-        if (is_file($this->sourcePath.$pathToSave) && $lastModified = filemtime($this->sourcePath.$pathToSave))
-        {
-            $expiresIn = $lastModified + $expires;
-            
-            if (time() > $expiresIn)
+            switch($fileExtension)
             {
-                unlink($this->sourcePath.$pathToSave);
+                case 'jpeg':
+                case 'jpg':
+                    $image = imagecreatefromjpeg($sourceImagePath);
+                    break;
+                case 'gif':
+                    $image = imagecreatefromgif($sourceImagePath);
+                    break;
+                case 'png':
+                    $image = imagecreatefrompng($sourceImagePath);
+                    break;
             }
-        }        
-        
-        $preset = strtolower($preset);
-        $parts = explode('x', $preset);
-        $newWidth = intval($parts['0']);
-        $newHeight = isset($parts['1']) ? intval($parts['1']) : 0;
-        
-        switch($fileExtension)
-        {
-            case 'jpeg':
-            case 'jpg':
-                $image = imagecreatefromjpeg($sourceImagePath);
-                break;
-            case 'gif':
-                $image = imagecreatefromgif($sourceImagePath);
-                break;
-            case 'png':
-                $image = imagecreatefrompng($sourceImagePath);
-                break;
         }
         
         if (!empty($newWidth) && !empty($newHeight))
