@@ -35,18 +35,37 @@ class ImageCache extends Component
     {
         if (strpos($path, 'http') !== false)
         {
-            return $path;
+            // read the external image
+            $ch = curl_init();
+
+            // set URL and other appropriate options
+            curl_setopt($ch, CURLOPT_URL, $path);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1); 
+            curl_setopt($ch, CURLOPT_HEADER, 0);
+            $content = curl_exec($ch);
+            curl_close($ch);
+            
+            if (empty($content))
+            {
+                return $path;
+            }
+            
+            $sourceImagePath = $path;
+        }
+        else
+        {
+            $sourceImagePath = $this->sourcePath.$path;
         }
         
-        if (!is_file($this->sourcePath.$path))
+        if (!is_file($sourceImagePath))
         {
             return null;
         }
         
-        $fileExtension =  pathinfo($this->sourcePath.$path, PATHINFO_EXTENSION);
-        $fileName =  pathinfo($this->sourcePath.$path, PATHINFO_FILENAME);
+        $fileExtension =  pathinfo($sourceImagePath, PATHINFO_EXTENSION);
+        $fileName =  pathinfo($sourceImagePath, PATHINFO_FILENAME);
         
-        list($width, $height) = getimagesize($this->sourcePath.$path);
+        list($width, $height) = getimagesize($$sourceImagePath);
         
         $pathToSave = $this->cachePath.'/imagecache/'.$preset.'/'.$fileName.'.'.$fileExtension;
         
@@ -71,13 +90,13 @@ class ImageCache extends Component
         {
             case 'jpeg':
             case 'jpg':
-                $image = imagecreatefromjpeg($this->sourcePath.$path);
+                $image = imagecreatefromjpeg($sourceImagePath);
                 break;
             case 'gif':
-                $image = imagecreatefromgif($this->sourcePath.$path);
+                $image = imagecreatefromgif($sourceImagePath);
                 break;
             case 'png':
-                $image = imagecreatefrompng($this->sourcePath.$path);
+                $image = imagecreatefrompng($sourceImagePath);
                 break;
         }
         
